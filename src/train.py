@@ -1,6 +1,7 @@
 import os
 import sys
 from tqdm import tqdm
+import argparse
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -147,6 +148,10 @@ def train_model(epochs=1, batch_size=8):
     return model, val_accuracy, model_path
 
 if __name__ == "__main__":
-    model, accuracy, model_path = train_model(epochs=20)  # Changed default epochs to 5
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--epochs', type=int, default=20, help='number of epochs to train (default: 20)')
+    args = parser.parse_args()
+    
+    model, accuracy, model_path = train_model(epochs=args.epochs)
     print(f"Training completed with test accuracy: {accuracy:.2f}%")
     print(f"Model saved as: {model_path}") 
