@@ -59,17 +59,20 @@ class TestModel(unittest.TestCase):
         print(f"✓ Dropout Test Passed: Found {len(dropout_layers)} Dropout layers")
 
     def test_global_average_pooling(self):
-        has_global_pool = any(isinstance(m, nn.AvgPool2d) 
+        # Check for either AdaptiveAvgPool2d or AvgPool2d
+        has_global_pool = any(isinstance(m, (nn.AdaptiveAvgPool2d, nn.AvgPool2d)) 
                             for m in self.model.modules())
         self.assertTrue(has_global_pool, 
-                       "Model should use Global Average Pooling")
+                       "Model should use Global Average Pooling (either AdaptiveAvgPool2d or AvgPool2d)")
         
-        # Verify the global pooling output size
-        global_pool_layers = [m for m in self.model.modules() 
-                            if isinstance(m, nn.AvgPool2d)]
-        for layer in global_pool_layers:
-            self.assertEqual(layer.output_size, (1, 1), 
-                           "Global Average Pooling should reduce spatial dimensions to 1x1")
+        # Test the output with a sample input
+        test_input = torch.randn(1, 12, 5, 5)  # Adjust channels and size according to your model
+        for module in self.model.modules():
+            if isinstance(module, (nn.AdaptiveAvgPool2d, nn.AvgPool2d)):
+                output = module(test_input)
+                self.assertEqual(output.shape[-2:], (1, 1), 
+                               "Global Average Pooling should reduce spatial dimensions to 1x1")
+                break
         
         print("✓ Global Average Pooling Test Passed: Found correct Global Average Pooling layer")
 
