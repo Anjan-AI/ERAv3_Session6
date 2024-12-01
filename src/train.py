@@ -37,6 +37,7 @@ def train_model(epochs=1, batch_size=8):
     train_transform = transforms.Compose([
         transforms.RandomRotation(10),
         transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+        transforms.ColorJitter(brightness=0.10, contrast=0.1, saturation=0.10, hue=0.1),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
@@ -74,7 +75,7 @@ def train_model(epochs=1, batch_size=8):
 
     model = MnistCNN().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.015)
+    optimizer = optim.SGD(model.parameters(), lr=0.015, momentum=0.9)
 
     # Training loop with epochs
     for epoch in range(epochs):
@@ -84,8 +85,12 @@ def train_model(epochs=1, batch_size=8):
         train_total = 0
         train_loss = 0
         
-        train_pbar = tqdm(train_loader, desc=f'Epoch {epoch+1}/{epochs} [Train]')
-        for batch_idx, (data, target) in enumerate(train_pbar):
+        use_progress_bar = not os.getenv('CI')
+        train_iterator = train_loader
+        if use_progress_bar:
+            train_iterator = tqdm(train_loader, desc=f'Epoch {epoch+1}/{epochs} [Train]')
+
+        for batch_idx, (data, target) in enumerate(train_iterator):
             data, target = data.to(device), target.to(device)
             optimizer.zero_grad()
             
@@ -100,10 +105,11 @@ def train_model(epochs=1, batch_size=8):
             train_total += target.size(0)
             
             # Update progress bar
-            train_pbar.set_postfix({
-                'loss': f'{train_loss/(batch_idx+1):.4f}',
-                'acc': f'{100.*train_correct/train_total:.2f}%'
-            })
+            if use_progress_bar:
+                train_iterator.set_postfix({
+                    'loss': f'{train_loss/(batch_idx+1):.4f}',
+                    'acc': f'{100.*train_correct/train_total:.2f}%'
+                })
 
         # Testing phase
         model.eval()
@@ -141,6 +147,6 @@ def train_model(epochs=1, batch_size=8):
     return model, val_accuracy, model_path
 
 if __name__ == "__main__":
-    model, accuracy, model_path = train_model(epochs=5)  # Changed default epochs to 5
+    model, accuracy, model_path = train_model(epochs=20)  # Changed default epochs to 5
     print(f"Training completed with test accuracy: {accuracy:.2f}%")
     print(f"Model saved as: {model_path}") 
