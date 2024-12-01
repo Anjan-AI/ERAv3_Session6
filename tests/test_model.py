@@ -59,7 +59,7 @@ class TestModel(unittest.TestCase):
         print(f"✓ Dropout Test Passed: Found {len(dropout_layers)} Dropout layers")
 
     def test_global_average_pooling(self):
-        has_global_pool = any(isinstance(m, nn.AdaptiveAvgPool2d) 
+        has_global_pool = any(isinstance(m, nn.AvgPool2d) 
                             for m in self.model.modules())
         self.assertTrue(has_global_pool, 
                        "Model should use Global Average Pooling")
