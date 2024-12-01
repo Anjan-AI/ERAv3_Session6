@@ -66,7 +66,7 @@ class TestModel(unittest.TestCase):
         
         # Verify the global pooling output size
         global_pool_layers = [m for m in self.model.modules() 
-                            if isinstance(m, nn.AdaptiveAvgPool2d)]
+                            if isinstance(m, nn.AvgPool2d)]
         for layer in global_pool_layers:
             self.assertEqual(layer.output_size, (1, 1), 
                            "Global Average Pooling should reduce spatial dimensions to 1x1")

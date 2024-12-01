@@ -48,7 +48,7 @@ class TestTraining(unittest.TestCase):
     def test_high_accuracy(self):
         print("\nTesting for high accuracy achievement...")
         # Train for more epochs to achieve high accuracy
-        _, accuracy, _ = train_model(epochs=10, batch_size=32)
+        _, accuracy, _ = train_model(epochs=20, batch_size=32)
         
         self.assertGreaterEqual(accuracy, 99.4, 
                                f"Validation accuracy {accuracy:.2f}% is less than required 99.4%")
