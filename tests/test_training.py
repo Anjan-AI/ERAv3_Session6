@@ -1,8 +1,19 @@
 import os
 import sys
+import subprocess
+import pkg_resources
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Check and install required packages
+required_packages = ['tqdm', 'torch', 'torchvision']
+installed_packages = [pkg.key for pkg in pkg_resources.working_set]
+
+for package in required_packages:
+    if package not in installed_packages:
+        print(f"Installing {package}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 import unittest
 import torch
